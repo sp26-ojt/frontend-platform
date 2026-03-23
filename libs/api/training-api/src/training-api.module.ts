@@ -17,6 +17,7 @@ import { DetectionEventApi } from './api/detection-event-api.service';
 import { UserApi } from './api/user-api.service';
 import { TrainingEventApi } from './api/training-event-api.service';
 import { AdaptiveRunApi } from './api/adaptive-run-api.service';
+import { DynamicFlagApiService } from './api/dynamic-flag-api.service';
 
 @NgModule({
     imports: [CommonModule],
@@ -45,6 +46,7 @@ import { AdaptiveRunApi } from './api/adaptive-run-api.service';
         MitreTechniquesApi,
         CheatingDetectionApi,
         DetectionEventApi,
+        DynamicFlagApiService,
     ],
 })
 export class TrainingApiModule {

@@ -1,0 +1,98 @@
+<div class="df-manage-container">
+    <h2>Dynamic Flag Management</h2>
+    <p class="df-subtitle">Manage dynamic flag configuration for training definitions. When enabled, flags rotate automatically based on the configured interval.</p>
+
+    @if (pageLoading()) {
+        <div class="df-loading">
+            <mat-spinner diameter="48" />
+        </div>
+    } @else if (pageError()) {
+        <p class="df-error">{{ pageError() }}</p>
+    } @else if (rows().length === 0) {
+        <p class="df-empty">No training definitions found.</p>
+    } @else {
+        <table mat-table [dataSource]="rows()" class="df-table mat-elevation-z2">
+
+            <!-- Title -->
+            <ng-container matColumnDef="title">
+                <th mat-header-cell *matHeaderCellDef>Training Definition</th>
+                <td mat-cell *matCellDef="let row">
+                    <span class="df-title">{{ row.definition.title }}</span>
+                    <span class="df-id">#{{ row.definition.id }}</span>
+                </td>
+            </ng-container>
+
+            <!-- Enable toggle -->
+            <ng-container matColumnDef="enabled">
+                <th mat-header-cell *matHeaderCellDef>Dynamic Flag</th>
+                <td mat-cell *matCellDef="let row">
+                    @if (forms[row.definition.id]) {
+                        <mat-slide-toggle
+                            [formControl]="forms[row.definition.id].controls.enableDynamicFlag"
+                            color="primary"
+                            matTooltip="Enable or disable dynamic flag for this training">
+                        </mat-slide-toggle>
+                    }
+                </td>
+            </ng-container>
+
+            <!-- Interval -->
+            <ng-container matColumnDef="interval">
+                <th mat-header-cell *matHeaderCellDef>Change Interval (min)</th>
+                <td mat-cell *matCellDef="let row">
+                    @if (forms[row.definition.id]) {
+                        <mat-form-field appearance="outline" class="df-field">
+                            <input matInput type="number" min="1"
+                                placeholder="e.g. 30"
+                                [formControl]="forms[row.definition.id].controls.flagChangeInterval"
+                                [disabled]="!forms[row.definition.id].controls.enableDynamicFlag.value" />
+                            @if (forms[row.definition.id].controls.flagChangeInterval.hasError('min')) {
+                                <mat-error>Min 1 minute</mat-error>
+                            }
+                        </mat-form-field>
+                    }
+                </td>
+            </ng-container>
+
+            <!-- Secret -->
+            <ng-container matColumnDef="secret">
+                <th mat-header-cell *matHeaderCellDef>Initial Secret</th>
+                <td mat-cell *matCellDef="let row">
+                    @if (forms[row.definition.id]) {
+                        <mat-form-field appearance="outline" class="df-field">
+                            <input matInput type="password"
+                                placeholder="Secret key"
+                                [formControl]="forms[row.definition.id].controls.initialSecret"
+                                [disabled]="!forms[row.definition.id].controls.enableDynamicFlag.value" />
+                        </mat-form-field>
+                    }
+                </td>
+            </ng-container>
+
+            <!-- Actions -->
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let row">
+                    @if (row.saving) {
+                        <mat-spinner diameter="24" />
+                    } @else {
+                        <button mat-icon-button color="primary"
+                            matTooltip="Save changes"
+                            [disabled]="forms[row.definition.id]?.invalid"
+                            (click)="save(row)">
+                            <mat-icon>save</mat-icon>
+                        </button>
+                    }
+                    @if (row.error) {
+                        <span class="df-row-error" matTooltip="{{ row.error }}">
+                            <mat-icon color="warn">error_outline</mat-icon>
+                        </span>
+                    }
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+    }
+</div>

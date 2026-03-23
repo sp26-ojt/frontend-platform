@@ -94,8 +94,8 @@ export class NavConfigFactory {
                             RoleResolver.isUserAndGroupAdmin(user.roles),
                     },
                     {
-                        label: 'Microservice',
-                        path: 'microservice' satisfies ValidPathPrefix,
+                        label: 'Dynamic Flag',
+                        path: 'api' satisfies ValidPathPrefix,
                         canActivate: () =>
                             RoleResolver.isUserAndGroupAdmin(user.roles),
                     },

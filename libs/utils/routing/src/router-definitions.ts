@@ -151,6 +151,10 @@ export const DEFINED_ROUTES = {
     microservice: {
         create: {},
     },
+
+    api: {
+        ['dynamic-flag']: {},
+    },
 } as const;
 
 type RoutesTree = { [key: string]: RoutesTree };

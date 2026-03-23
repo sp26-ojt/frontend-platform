@@ -183,6 +183,19 @@ export const APP_ROUTES: ValidRouterConfig<''> = [
         },
     },
     {
+        path: 'api',
+        loadChildren: () =>
+            import('./modules/api/api-routing.module').then(
+                (m) => m.ApiRoutingModule,
+            ),
+        canActivate: [RoleGuards.uagAdminGuard],
+        data: {
+            breadcrumb: 'API',
+            title: 'API Management',
+            preloadRoleCondition: 'uagAdmin',
+        },
+    },
+    {
         path: 'notifications',
         canActivate: [sentinelAuthGuard],
         loadChildren: () =>

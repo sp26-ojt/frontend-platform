@@ -24,3 +24,4 @@ export * from './api/cheating-detection-api.service';
 export * from './api/detection-event-api.service';
 
 export * from './api/sorts';
+export * from './api/dynamic-flag-api.service';

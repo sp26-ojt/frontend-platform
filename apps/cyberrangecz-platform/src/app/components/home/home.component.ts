@@ -88,6 +88,13 @@ export class HomeComponent implements OnInit {
                 children: [],
                 icon: 'manage_accounts',
             },
+            {
+                agendas: this.createApiButtons(),
+                label: 'Dynamic Flag',
+                displayed: RoleResolver.isUserAndGroupAdmin(this.roles),
+                children: [],
+                icon: 'api',
+            },
         ];
     }
 
@@ -157,28 +164,35 @@ export class HomeComponent implements OnInit {
     }
 
     private createManageButtons() {
+            const disabled = !RoleResolver.isUserAndGroupAdmin(this.roles);
+            return [
+                new AgendaPortalLink(
+                    'Groups',
+                    disabled,
+                    'group',
+                    'In Groups, you can manage groups and grant access rights to their members.',
+                    'group',
+                ),
+                new AgendaPortalLink(
+                    'Users',
+                    disabled,
+                    'user',
+                    'The Users agenda lets you assign users to existing groups.',
+                    'person',
+                ),
+            ];
+        }
+
+
+    private createApiButtons() {
         const disabled = !RoleResolver.isUserAndGroupAdmin(this.roles);
         return [
             new AgendaPortalLink(
-                'Groups',
+                'Dynamic Flag',
                 disabled,
-                'group',
-                'In Groups, you can manage groups and grant access rights to their members.',
-                'group',
-            ),
-            new AgendaPortalLink(
-                'Users',
-                disabled,
-                'user',
-                'The Users agenda lets you assign users to existing groups.',
-                'person',
-            ),
-            new AgendaPortalLink(
-                'Microservices',
-                disabled,
-                'microservice',
-                'You can also manage the microservices that provide the CyberRangeᶜᶻ Platform’s functionality. Make sure you understand the implications before making any changes.',
-                'account_tree',
+                'api/dynamic-flag',
+                'Manage dynamic flag configuration for training definitions — enable/disable and set the flag change interval.',
+                'flag',
             ),
         ];
     }

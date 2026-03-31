@@ -11,14 +11,36 @@ const routes: ValidRouterConfig<'api'> = [
     },
     {
         path: 'dynamic-flag',
-        loadComponent: () =>
-            import('./dynamic-flag/dynamic-flag-manage.component').then(
-                (m) => m.DynamicFlagManageComponent,
-            ),
-        data: {
-            breadcrumb: 'Dynamic Flag',
-            title: 'Dynamic Flag Management',
-        },
+        children: [
+            {
+                path: '',
+                redirectTo: 'linear',
+                pathMatch: 'full',
+            },
+            {
+                path: 'adaptive',
+                loadComponent: () =>
+                    import('./dynamic-flag/adaptive-dynamic-flag-manage.component').then(
+                        (m) => m.AdaptiveDynamicFlagManageComponent,
+                    ),
+                data: {
+                    breadcrumb: 'Dynamic Flag - Adaptive',
+                    title: 'Dynamic Flag Management (Adaptive)',
+                },
+            },
+            {
+                path: 'linear',
+                loadComponent: () =>
+                    import('./dynamic-flag/dynamic-flag-manage.component').then(
+                        (m) => m.DynamicFlagManageComponent,
+                    ),
+                data: {
+                    breadcrumb: 'Dynamic Flag - Linear',
+                    title: 'Dynamic Flag Management (Linear)',
+                    trainingType: 'linear',
+                },
+            },
+        ],
     },
 ];
 

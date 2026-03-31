@@ -153,7 +153,10 @@ export const DEFINED_ROUTES = {
     },
 
     api: {
-        ['dynamic-flag']: {},
+        ['dynamic-flag']: {
+            adaptive: {},
+            linear: {},
+        },
     },
 } as const;
 

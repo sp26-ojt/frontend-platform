@@ -15,6 +15,9 @@ export class TaskMapper {
         result.incorrectAnswerLimit = dto.incorrect_answer_limit;
         result.solution = dto.solution;
         result.modifySandbox = dto.modify_sandbox;
+        result.dynamicFlagEnabled = dto.dynamic_flag_enabled ?? false;
+        result.dynamicFlagIntervalMinutes = dto.dynamic_flag_interval_minutes ?? null;
+        result.dynamicFlagSecret = dto.dynamic_flag_secret ?? null;
         return result;
     }
 
@@ -31,6 +34,9 @@ export class TaskMapper {
         result.incorrect_answer_limit = task.incorrectAnswerLimit;
         result.answer = task.answer;
         result.modify_sandbox = task.modifySandbox;
+        result.dynamic_flag_enabled = task.dynamicFlagEnabled;
+        result.dynamic_flag_interval_minutes = task.dynamicFlagIntervalMinutes;
+        result.dynamic_flag_secret = task.dynamicFlagSecret;
         return result;
     }
 

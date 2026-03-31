@@ -1,6 +1,6 @@
 <div class="df-manage-container">
-    <h2>Dynamic Flag Management</h2>
-    <p class="df-subtitle">Manage dynamic flag configuration for training definitions. When enabled, flags rotate automatically based on the configured interval.</p>
+    <h2>Dynamic Flag Management (Adaptive)</h2>
+    <p class="df-subtitle">Configure dynamic flag per task. When enabled, the flag rotates automatically based on the configured interval.</p>
 
     @if (pageLoading()) {
         <div class="df-loading">
@@ -9,16 +9,31 @@
     } @else if (pageError()) {
         <p class="df-error">{{ pageError() }}</p>
     } @else if (rows().length === 0) {
-        <p class="df-empty">No training definitions found.</p>
+        <p class="df-empty">No tasks found.</p>
     } @else {
         <table mat-table [dataSource]="rows()" class="df-table mat-elevation-z2">
 
-            <!-- Title -->
-            <ng-container matColumnDef="title">
+            <!-- Definition -->
+            <ng-container matColumnDef="definition">
                 <th mat-header-cell *matHeaderCellDef>Training Definition</th>
                 <td mat-cell *matCellDef="let row">
-                    <span class="df-title">{{ row.definition.title }}</span>
-                    <span class="df-id">#{{ row.definition.id }}</span>
+                    <span class="df-title">{{ row.definitionTitle }}</span>
+                    <span class="df-id">#{{ row.definitionId }}</span>
+                </td>
+            </ng-container>
+
+            <!-- Phase -->
+            <ng-container matColumnDef="phase">
+                <th mat-header-cell *matHeaderCellDef>Phase</th>
+                <td mat-cell *matCellDef="let row">{{ row.phaseTitle }}</td>
+            </ng-container>
+
+            <!-- Task -->
+            <ng-container matColumnDef="task">
+                <th mat-header-cell *matHeaderCellDef>Task</th>
+                <td mat-cell *matCellDef="let row">
+                    <span class="df-title">{{ row.task.title }}</span>
+                    <span class="df-id">#{{ row.task.id }}</span>
                 </td>
             </ng-container>
 
@@ -26,9 +41,9 @@
             <ng-container matColumnDef="enabled">
                 <th mat-header-cell *matHeaderCellDef>Dynamic Flag</th>
                 <td mat-cell *matCellDef="let row">
-                    @if (forms[row.definition.id]) {
+                    @if (forms[row.task.id]) {
                         <mat-slide-toggle
-                            [formControl]="forms[row.definition.id].controls.enableDynamicFlag"
+                            [formControl]="forms[row.task.id].controls.dynamicFlagEnabled"
                             color="primary"
                             [matTooltip]="row.hasInstance ? 'Cannot change — active instance exists' : 'Enable or disable dynamic flag'">
                         </mat-slide-toggle>
@@ -40,12 +55,12 @@
             <ng-container matColumnDef="interval">
                 <th mat-header-cell *matHeaderCellDef>Change Interval (min)</th>
                 <td mat-cell *matCellDef="let row">
-                    @if (forms[row.definition.id]) {
+                    @if (forms[row.task.id]) {
                         <mat-form-field appearance="outline" class="df-field">
                             <input matInput type="number" min="1"
                                 placeholder="e.g. 30"
-                                [formControl]="forms[row.definition.id].controls.flagChangeInterval" />
-                            @if (forms[row.definition.id].controls.flagChangeInterval.hasError('min')) {
+                                [formControl]="forms[row.task.id].controls.dynamicFlagIntervalMinutes" />
+                            @if (forms[row.task.id].controls.dynamicFlagIntervalMinutes.hasError('min')) {
                                 <mat-error>Min 1 minute</mat-error>
                             }
                         </mat-form-field>
@@ -55,13 +70,13 @@
 
             <!-- Secret -->
             <ng-container matColumnDef="secret">
-                <th mat-header-cell *matHeaderCellDef>Initial Secret</th>
+                <th mat-header-cell *matHeaderCellDef>Secret</th>
                 <td mat-cell *matCellDef="let row">
-                    @if (forms[row.definition.id]) {
+                    @if (forms[row.task.id]) {
                         <mat-form-field appearance="outline" class="df-field">
                             <input matInput type="password"
                                 placeholder="Secret key"
-                                [formControl]="forms[row.definition.id].controls.initialSecret" />
+                                [formControl]="forms[row.task.id].controls.dynamicFlagSecret" />
                         </mat-form-field>
                     }
                 </td>
@@ -76,13 +91,13 @@
                     } @else {
                         <button mat-icon-button color="primary"
                             matTooltip="Save changes"
-                            [disabled]="forms[row.definition.id]?.invalid"
+                            [disabled]="forms[row.task.id]?.invalid"
                             (click)="save(row)">
                             <mat-icon>save</mat-icon>
                         </button>
                     }
                     @if (row.error) {
-                        <span class="df-row-error" matTooltip="{{ row.error }}">
+                        <span class="df-row-error" [matTooltip]="row.error">
                             <mat-icon color="warn">error_outline</mat-icon>
                         </span>
                     }

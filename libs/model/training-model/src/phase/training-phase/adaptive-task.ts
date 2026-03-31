@@ -6,5 +6,7 @@ export class AdaptiveTask extends Phase {
     solution!: string;
     incorrectAnswerLimit!: number;
     modifySandbox!: boolean;
-
+    dynamicFlagEnabled: boolean = false;
+    dynamicFlagIntervalMinutes: number | null = null;
+    dynamicFlagSecret: string | null = null;
 }

@@ -95,9 +95,20 @@ export class NavConfigFactory {
                     },
                     {
                         label: 'Dynamic Flag',
-                        path: 'api' satisfies ValidPathPrefix,
-                        canActivate: () =>
-                            RoleResolver.isUserAndGroupAdmin(user.roles),
+                        agendas: [
+                            {
+                                label: 'Adaptive',
+                                path: 'api/dynamic-flag/adaptive' satisfies ValidPathPrefix,
+                                canActivate: () =>
+                                    RoleResolver.isUserAndGroupAdmin(user.roles),
+                            },
+                            {
+                                label: 'Linear',
+                                path: 'api/dynamic-flag/linear' satisfies ValidPathPrefix,
+                                canActivate: () =>
+                                    RoleResolver.isUserAndGroupAdmin(user.roles),
+                            },
+                        ],
                     },
                 ],
             },

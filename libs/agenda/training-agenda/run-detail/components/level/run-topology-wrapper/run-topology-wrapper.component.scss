@@ -1,4 +1,4 @@
-$content-height: calc(100dvh - 36rem);
+$content-height: calc(100dvh - 20rem);
 
 
 :host {
@@ -18,7 +18,7 @@ $content-height: calc(100dvh - 36rem);
 .level-topology {
     display: block;
     height: $content-height;
-    max-width: 60dvw;
+    max-width: 80dvw;
     transform: translateX(0);
 }
 

@@ -21,11 +21,11 @@ export class MicroserviceEditOverviewComponent implements OnInit {
     /**
      * Edited/created microservice-registration
      */
-    microservice: Microservice;
+    microservice: Microservice = new Microservice('', '', []);
     /**
      * True if microservice-registration has default role, false otherwise
      */
-    hasDefaultRole: boolean;
+    hasDefaultRole: boolean | null = null;
     /**
      * True if microservice-registration state form is valid, false otherwise
      */
@@ -69,8 +69,8 @@ export class MicroserviceEditOverviewComponent implements OnInit {
      * Calls service to create microservice-registration and handles eventual error
      */
     create(): void {
-        this.api.create(this.microservice).subscribe(
-            () => {
+        this.api.create(this.microservice).subscribe({
+            next: () => {
                 this.router.navigate([
                     Routing.RouteBuilder.microservice.build(),
                 ]);
@@ -80,12 +80,12 @@ export class MicroserviceEditOverviewComponent implements OnInit {
                 );
                 this.canDeactivateForm = true;
             },
-            (err) =>
+            error: (err) =>
                 this.errorHandler.emitAPIError(
                     err,
                     'Creating microservice-registration'
-                )
-        );
+                ),
+        });
     }
 
     private initMicroservice() {

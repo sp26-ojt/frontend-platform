@@ -24,7 +24,7 @@ export class MicroserviceEditControlsComponent {
     /**
      * True if microservice-registration has selected default role, false otherwise
      */
-    @Input() hasDefaultRole: boolean;
+    @Input() hasDefaultRole: boolean | null;
 
     /**
      * Event emitter requesting to create new role

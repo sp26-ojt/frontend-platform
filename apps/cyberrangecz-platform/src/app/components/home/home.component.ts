@@ -180,6 +180,13 @@ export class HomeComponent implements OnInit {
                     'The Users agenda lets you assign users to existing groups.',
                     'person',
                 ),
+                new AgendaPortalLink(
+                    'Microservice',
+                    disabled,
+                    'microservice',
+                    'You can also manage the microservices that provide the CyberRangeᶜᶻ Platform\'s functionality. Make sure you understand the implications before making any changes.',
+                    'account_tree',
+                ),
             ];
         }
 

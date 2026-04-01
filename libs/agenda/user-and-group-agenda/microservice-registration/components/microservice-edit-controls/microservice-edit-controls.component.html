@@ -7,7 +7,7 @@
     </button>
 </div>
 <div class="error-state">
-    @if (!(hasDefaultRole)) {
+    @if (hasDefaultRole === false) {
         <mat-error class="error-state">Microservice has to have a default role</mat-error>
     }
 </div>

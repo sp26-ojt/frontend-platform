@@ -126,6 +126,9 @@ const graph_config: Options = {
     },
     interaction: {
         hover: true,
+        zoomView: true,
+        dragView: true,
+        zoomSpeed: 0.5,
     },
     layout: {
         improvedLayout: true,

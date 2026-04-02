@@ -197,9 +197,13 @@ export class HomeComponent implements OnInit {
             new AgendaPortalLink(
                 'Dynamic Flag',
                 disabled,
-                'api/dynamic-flag',
+                'api/dynamic-flag/linear',
                 'Manage dynamic flag configuration for training definitions — enable/disable and set the flag change interval.',
                 'flag',
+                HomeComponent.createExpandedControlButtons([
+                    'api/dynamic-flag/adaptive',
+                    'api/dynamic-flag/linear',
+                ]),
             ),
         ];
     }

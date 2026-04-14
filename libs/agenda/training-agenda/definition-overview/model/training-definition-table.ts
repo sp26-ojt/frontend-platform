@@ -120,6 +120,15 @@ export class TrainingDefinitionTable extends SentinelTable<
                 of(false),
                 defer(() => service.preview(td.id)),
             ),
+            new RowAction(
+                'dynamic_flag',
+                'Dynamic Flag',
+                'flag',
+                'primary',
+                'Manage dynamic flag configuration',
+                of(false),
+                defer(() => service.dynamicFlag(td.id)),
+            ),
         ];
     }
 

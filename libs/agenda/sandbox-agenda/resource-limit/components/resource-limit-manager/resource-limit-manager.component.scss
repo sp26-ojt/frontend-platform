@@ -1,0 +1,130 @@
+:host {
+  display: block;
+  padding: 16px;
+}
+
+.rlm-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 48px;
+}
+
+.rlm-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  color: var(--mat-warn-color, #f44336);
+}
+
+.rlm-empty {
+  padding: 32px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.54);
+  font-style: italic;
+}
+
+.rlm-table-wrapper {
+  overflow-x: auto;
+}
+
+.rlm-table {
+  width: 100%;
+  min-width: 900px;
+
+  th.mat-header-cell,
+  td.mat-cell {
+    padding: 8px 12px;
+    vertical-align: middle;
+  }
+}
+
+.rlm-usage-text {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 4px;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.rlm-input {
+  width: 100px;
+}
+
+/* Fix min/max instances columns to same width and vertical alignment */
+td.mat-cell:has(.rlm-input),
+th.mat-header-cell {
+  vertical-align: top;
+}
+
+.rlm-instances-cell {
+  display: flex;
+  flex-direction: column;
+  min-height: 80px;
+}
+
+.rlm-estimate {
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.54);
+  margin-top: 2px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.rlm-warn-text {
+  color: #f57c00;
+  cursor: help;
+}
+
+.rlm-error-text {
+  font-size: 11px;
+  color: #f44336;
+  margin-top: 2px;
+}
+
+.rlm-icon-warn {
+  color: #f9a825;
+  font-size: 20px;
+  vertical-align: middle;
+}
+
+.rlm-icon-error {
+  color: #f44336;
+  font-size: 20px;
+  vertical-align: middle;
+}
+
+.rlm-na {
+  color: rgba(0, 0, 0, 0.38);
+  font-style: italic;
+  cursor: help;
+}
+
+.rlm-btn-spinner {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+mat-progress-bar {
+  border-radius: 2px;
+}
+
+.rlm-row-clickable {
+  cursor: pointer;
+}
+
+.rlm-queue-row td {
+  padding: 0 !important;
+  border-bottom: none;
+}
+
+.rlm-queue-row-hidden td {
+  border-bottom: none;
+  height: 0 !important;
+  overflow: hidden;
+}
+
+.rlm-queue-panel {
+  overflow: hidden;
+}

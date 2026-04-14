@@ -58,6 +58,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { RoleService } from './app/services/role.service';
 import { APP_ROUTES } from './app/app-routes';
 import { provideSentinelMarkdownEditorConfig } from '@sentinel/components/markdown-editor';
+import { SandboxApiModule } from '@crczp/sandbox-api';
 
 @Injectable()
 export class SentinelUagAuthorizationStrategy extends SentinelAuthorizationStrategy {

@@ -1,0 +1,81 @@
+<div class="quota-summary-card">
+  <ng-container *ngIf="quota; else loading">
+    <div class="quota-summary-header">
+      <div class="quota-summary-title">Hardware Quota Summary</div>
+      <button mat-icon-button (click)="openEdit()" matTooltip="Configure quota settings" *ngIf="!editMode">
+        <mat-icon>settings</mat-icon>
+      </button>
+    </div>
+
+    <!-- View mode -->
+    <div class="quota-summary-items" *ngIf="!editMode">
+      <div class="quota-item">
+        <span class="quota-label">Instances</span>
+        <span class="quota-value">{{ quota.usedInstances }} / {{ quota.totalInstances }}</span>
+        <span class="quota-available">(available: {{ quota.availableInstances }})</span>
+      </div>
+      <div class="quota-item">
+        <span class="quota-label">vCPU</span>
+        <span class="quota-value">{{ quota.usedVcpu }} / {{ quota.totalVcpu }}</span>
+        <span class="quota-available">(available: {{ quota.availableVcpu }})</span>
+      </div>
+      <div class="quota-item">
+        <span class="quota-label">RAM</span>
+        <span class="quota-value">{{ quota.usedRamMb.toFixed(1) }} GB / {{ quota.totalRamMb.toFixed(1) }} GB</span>
+        <span class="quota-available">(available: {{ quota.availableRamMb.toFixed(1) }} GB)</span>
+      </div>
+    </div>
+
+    <!-- Edit mode -->
+    <div class="quota-edit-panel" *ngIf="editMode">
+      <div class="quota-edit-section-title">Override Total Quota (leave blank to use API values)</div>
+      <div class="quota-edit-fields">
+        <mat-form-field appearance="outline" class="quota-edit-field">
+          <mat-label>Total Instances</mat-label>
+          <input matInput type="number" [(ngModel)]="editTotalInstances" [placeholder]="quota.totalInstances + ' (from API)'" min="1" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="quota-edit-field">
+          <mat-label>Total vCPU</mat-label>
+          <input matInput type="number" [(ngModel)]="editTotalVcpu" [placeholder]="quota.totalVcpu + ' (from API)'" min="1" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="quota-edit-field">
+          <mat-label>Total RAM (GB)</mat-label>
+          <input matInput type="number" [(ngModel)]="editTotalRamGb" [placeholder]="quota.totalRamMb.toFixed(0) + ' (from API)'" min="1" step="0.5" />
+        </mat-form-field>
+      </div>
+
+      <div class="quota-edit-section-title" style="margin-top: 20px">Infrastructure Reservation & Buffer</div>
+      <div class="quota-edit-fields">
+        <mat-form-field appearance="outline" class="quota-edit-field">
+          <mat-label>Fixed vCPU (infra)</mat-label>
+          <input matInput type="number" [(ngModel)]="editConfig.fixedVcpu" min="0" />
+          <mat-hint>Reserved for Kubernetes, Proxy, etc.</mat-hint>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="quota-edit-field">
+          <mat-label>Fixed RAM (GB, infra)</mat-label>
+          <input matInput type="number" [(ngModel)]="editConfig.fixedRamGb" min="0" step="0.5" />
+          <mat-hint>RAM reserved for infrastructure</mat-hint>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="quota-edit-field">
+          <mat-label>vCPU Usable % (buffer)</mat-label>
+          <input matInput type="number" [(ngModel)]="editConfig.vcpuUsablePercent" min="50" max="100" />
+          <mat-hint>e.g. 90 = keep 10% vCPU buffer</mat-hint>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="quota-edit-field">
+          <mat-label>RAM Usable % (buffer)</mat-label>
+          <input matInput type="number" [(ngModel)]="editConfig.ramUsablePercent" min="50" max="100" />
+          <mat-hint>e.g. 90 = keep 10% RAM buffer</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <div class="quota-edit-actions">
+        <button mat-raised-button color="primary" (click)="saveEdit()">Apply</button>
+        <button mat-button (click)="cancelEdit()">Cancel</button>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #loading>
+    <div class="quota-summary-loading">Loading...</div>
+  </ng-template>
+</div>

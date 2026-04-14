@@ -152,6 +152,12 @@ export class TrainingInstanceOverviewService extends CrczpOffsetElementsPaginate
         ]);
     }
 
+    dynamicFlag(definitionId: number) {
+        return this.router.navigate(['api/dynamic-flag/linear'], {
+            queryParams: { definitionId },
+        });
+    }
+
     /**
      * Returns observable of PoolSize, holding data about total and used size of a pool or
      * an error if the pool is not assigned or has been removed.

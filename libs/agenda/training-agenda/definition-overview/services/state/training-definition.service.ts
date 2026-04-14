@@ -114,6 +114,14 @@ export class TrainingDefinitionService extends CrczpOffsetElementsPaginatedServi
         );
     }
 
+    dynamicFlag(definitionId: number): Observable<boolean> {
+        const type = this.trainingType === TrainingTypeEnum.LINEAR ? 'linear' : 'adaptive';
+        return from(
+            this.router.navigate([`${type}-definition/dynamic-flag`], {
+                queryParams: { definitionId },
+            }),
+        );
+    }
     /**
      * Displays dialog to delete training definition and informs about the result and optionally
      * updates list of training definitions or handles an error

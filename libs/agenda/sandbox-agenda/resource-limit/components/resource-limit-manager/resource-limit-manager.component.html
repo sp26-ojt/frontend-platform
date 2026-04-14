@@ -1,0 +1,130 @@
+<crczp-hardware-quota-summary [quota]="currentQuota" (configSaved)="onConfigSaved()"></crczp-hardware-quota-summary>
+
+<!-- Loading state -->
+<div *ngIf="loading$ | async" class="rlm-loading">
+  <mat-spinner diameter="48"></mat-spinner>
+</div>
+
+<!-- Error state -->
+<div *ngIf="hasError$ | async" class="rlm-error">
+  <mat-icon color="warn">error_outline</mat-icon>
+  <span>Failed to load pools. Please try again.</span>
+</div>
+
+<ng-container *ngIf="!(loading$ | async) && !(hasError$ | async)">
+  <!-- Empty state -->
+  <div *ngIf="(rows$ | async)?.length === 0" class="rlm-empty">
+    No pools found.
+  </div>
+
+  <!-- Table -->
+  <div *ngIf="(rows$ | async)?.length! > 0" class="rlm-table-wrapper">
+    <table mat-table [dataSource]="rows$ | async" multiTemplateDataRows class="rlm-table">
+
+      <!-- Pool Name -->
+      <ng-container matColumnDef="poolName">
+        <th mat-header-cell *matHeaderCellDef>Pool Name</th>
+        <td mat-cell *matCellDef="let row">{{ row.poolName }}</td>
+      </ng-container>
+
+      <!-- vCPU Usage -->
+      <ng-container matColumnDef="vcpuUsage">
+        <th mat-header-cell *matHeaderCellDef>vCPU Usage</th>
+        <td mat-cell *matCellDef="let row">
+          <ng-container *ngIf="currentQuota; else naTemplate">
+            <span class="rlm-usage-text">{{ row.usedSize * (row.flavor?.vcpu ?? 0) }} vCPUs</span>
+          </ng-container>
+          <ng-template #naTemplate>
+            <span matTooltip="Hardware quota data unavailable" class="rlm-na">N/A</span>
+          </ng-template>
+        </td>
+      </ng-container>
+
+      <!-- RAM Usage -->
+      <ng-container matColumnDef="ramUsage">
+        <th mat-header-cell *matHeaderCellDef>RAM Usage</th>
+        <td mat-cell *matCellDef="let row">
+          <ng-container *ngIf="currentQuota; else naRamTemplate">
+            <span class="rlm-usage-text">{{ (row.usedSize * (row.flavor?.ramMb ?? 0)).toFixed(1) }} GB</span>
+          </ng-container>
+          <ng-template #naRamTemplate>
+            <span matTooltip="Hardware quota data unavailable" class="rlm-na">N/A</span>
+          </ng-template>
+        </td>
+      </ng-container>
+
+      <!-- Limit Enabled toggle -->
+      <ng-container matColumnDef="limitEnabled">
+        <th mat-header-cell *matHeaderCellDef>Limit Enabled</th>
+        <td mat-cell *matCellDef="let row">
+          <ng-container *ngIf="getForm(row.poolId) as form">
+            <mat-slide-toggle
+              [formControl]="$any(form.get('limitEnabled'))"
+              (change)="onLimitEnabledChange(row)"
+            ></mat-slide-toggle>
+          </ng-container>
+        </td>
+      </ng-container>
+
+      <!-- Status -->
+      <ng-container matColumnDef="alert">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let row">
+          <mat-icon *ngIf="row.vcpuAlertStatus === 'warn'" class="rlm-icon-warn" matTooltip="Approaching vCPU quota">memory</mat-icon>
+          <mat-icon *ngIf="row.vcpuAlertStatus === 'error'" class="rlm-icon-error" matTooltip="vCPU quota reached">memory</mat-icon>
+          <mat-icon *ngIf="row.ramAlertStatus === 'warn'" class="rlm-icon-warn" matTooltip="Approaching RAM quota">storage</mat-icon>
+          <mat-icon *ngIf="row.ramAlertStatus === 'error'" class="rlm-icon-error" matTooltip="RAM quota reached">storage</mat-icon>
+          <mat-icon *ngIf="row.saveError" class="rlm-icon-error" [matTooltip]="row.saveError">error_outline</mat-icon>
+        </td>
+      </ng-container>
+
+      <!-- Save button -->
+      <ng-container matColumnDef="save">
+        <th mat-header-cell *matHeaderCellDef style="text-align: center">Actions</th>
+        <td mat-cell *matCellDef="let row" style="text-align: center; vertical-align: middle">
+          <ng-container *ngIf="getForm(row.poolId) as form">
+            <button
+              mat-raised-button
+              color="primary"
+              [disabled]="form.invalid || row.saving"
+              (click)="onSave(row); $event.stopPropagation()"
+            >
+              <mat-spinner *ngIf="row.saving" diameter="18" class="rlm-btn-spinner"></mat-spinner>
+              <span *ngIf="!row.saving">Save</span>
+            </button>
+          </ng-container>
+        </td>
+      </ng-container>
+
+      <!-- Expand toggle -->
+      <ng-container matColumnDef="expand">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let row">
+          <button mat-icon-button (click)="toggleExpand(row); $event.stopPropagation()"
+                  [matTooltip]="expandedPoolId === row.poolId ? 'Collapse queue' : 'View queue'">
+            <mat-icon>{{ expandedPoolId === row.poolId ? 'expand_less' : 'expand_more' }}</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <!-- Expanded queue row -->
+      <ng-container matColumnDef="expandedQueue">
+        <td mat-cell *matCellDef="let row" [attr.colspan]="displayedColumns.length" style="padding: 0; border-bottom: none;">
+          <div *ngIf="expandedPoolId === row.poolId" class="rlm-queue-panel">
+            <crczp-queue-management
+              [poolId]="row.poolId"
+              [poolName]="row.poolName"
+              [currentUserId]="currentUserId">
+            </crczp-queue-management>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="rlm-row-clickable"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['expandedQueue']"
+          [style.display]="expandedPoolId === row.poolId ? '' : 'none'"
+          class="rlm-queue-row"></tr>
+    </table>
+  </div>
+</ng-container>

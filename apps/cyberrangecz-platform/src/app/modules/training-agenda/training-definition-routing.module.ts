@@ -17,6 +17,18 @@ const routes: ValidRouterConfig<'linear-definition'> = [
         component: LinearTrainingDefinitionOverviewComponent,
     },
     {
+        path: 'dynamic-flag',
+        loadComponent: () =>
+            import('../api/dynamic-flag/dynamic-flag-manage.component').then(
+                (m) => m.DynamicFlagManageComponent,
+            ),
+        data: {
+            breadcrumb: 'Dynamic Flag',
+            title: 'Dynamic Flag Management (Linear)',
+            trainingType: 'linear',
+        },
+    },
+    {
         path: 'create',
         loadComponent: () =>
             import('@crczp/training-agenda/definition-edit').then(

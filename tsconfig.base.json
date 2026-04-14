@@ -76,6 +76,9 @@
             "@crczp/sandbox-agenda/sandbox-definition-overview": [
                 "libs/agenda/sandbox-agenda/sandbox-definition-overview/index.ts"
             ],
+            "@crczp/sandbox-agenda/resource-limit": [
+                "libs/agenda/sandbox-agenda/resource-limit/index.ts"
+            ],
             "@crczp/sandbox-agenda/sandbox-images": [
                 "libs/agenda/sandbox-agenda/sandbox-images/index.ts"
             ],

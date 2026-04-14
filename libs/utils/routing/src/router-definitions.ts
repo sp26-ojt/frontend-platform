@@ -20,6 +20,7 @@ export const DEFINED_ROUTES = {
     ['adaptive-definition']: {
         create: {},
         simulator: {},
+        ['dynamic-flag']: {},
         EXCL_VAR_definitionId: {
             edit: {},
             preview: {},
@@ -30,6 +31,7 @@ export const DEFINED_ROUTES = {
 
     ['linear-definition']: {
         create: {},
+        ['dynamic-flag']: {},
         EXCL_VAR_definitionId: {
             edit: {},
             preview: {},
@@ -106,6 +108,8 @@ export const DEFINED_ROUTES = {
     ['mitre-techniques']: {},
 
     ['sandbox-image']: {},
+
+    ['resource-limit']: {},
 
     ['sandbox-definition']: {
         create: {},

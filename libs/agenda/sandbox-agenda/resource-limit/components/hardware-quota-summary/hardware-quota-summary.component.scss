@@ -1,0 +1,84 @@
+.quota-summary-card {
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background: #fafafa;
+  margin-bottom: 16px;
+}
+
+.quota-summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.quota-summary-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.quota-summary-items {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.quota-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quota-label {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+
+  &::after {
+    content: ':';
+  }
+}
+
+.quota-value {
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.quota-available {
+  color: rgba(0, 0, 0, 0.54);
+  font-size: 13px;
+}
+
+.quota-summary-loading {
+  color: rgba(0, 0, 0, 0.54);
+  font-style: italic;
+}
+
+.quota-edit-panel {
+  margin-top: 8px;
+}
+
+.quota-edit-section-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+  margin-bottom: 16px;
+  margin-top: 4px;
+}
+
+.quota-edit-fields {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.quota-edit-field {
+  width: 200px;
+}
+
+.quota-edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}

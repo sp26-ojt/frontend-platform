@@ -9,7 +9,7 @@ COPY *.json /build/
 COPY .npmrc /build/
 
 RUN cd /build && \
-    npm i && \
+    NODE_OPTIONS="--max-old-space-size=4096" npm i --fetch-retry-mintimeout 20000 --fetch-retry-maxtimeout 120000 --fetch-retries 5 && \
     if [ "$PROD" = true ] ; then \
       nx run cyberrangecz-platform:build:production; \
     else \

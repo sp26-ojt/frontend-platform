@@ -1,0 +1,93 @@
+<div class="qm-container">
+  <h3 class="qm-title">Queue Management</h3>
+
+  <!-- Loading spinner -->
+  <div *ngIf="loading$ | async" class="qm-loading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <ng-container *ngIf="!(loading$ | async)">
+    <!-- Empty state -->
+    <div *ngIf="(entries$ | async)?.length === 0" class="qm-empty">
+      No pending requests in queue.
+    </div>
+
+    <!-- Table -->
+    <div *ngIf="(entries$ | async)?.length! > 0" class="qm-table-wrapper">
+      <table mat-table [dataSource]="entries$ | async" class="qm-table">
+
+        <!-- Position -->
+        <ng-container matColumnDef="position">
+          <th mat-header-cell *matHeaderCellDef>Position</th>
+          <td mat-cell *matCellDef="let entry">{{ entry.position }}</td>
+        </ng-container>
+
+        <!-- User ID -->
+        <ng-container matColumnDef="userId">
+          <th mat-header-cell *matHeaderCellDef>User ID</th>
+          <td mat-cell *matCellDef="let entry">{{ entry.userId }}</td>
+        </ng-container>
+
+        <!-- Requested At -->
+        <ng-container matColumnDef="requestedAt">
+          <th mat-header-cell *matHeaderCellDef>Requested At</th>
+          <td mat-cell *matCellDef="let entry">{{ entry.requestedAt | date:'medium' }}</td>
+        </ng-container>
+
+        <!-- Estimated Wait -->
+        <ng-container matColumnDef="estimatedWait">
+          <th mat-header-cell *matHeaderCellDef>Estimated Wait</th>
+          <td mat-cell *matCellDef="let entry">
+            <span *ngIf="entry.estimatedWaitSeconds != null">
+              {{ entry.estimatedWaitSeconds }}s
+            </span>
+            <span *ngIf="entry.estimatedWaitSeconds == null" class="qm-na">—</span>
+          </td>
+        </ng-container>
+
+        <!-- Reason -->
+        <ng-container matColumnDef="reason">
+          <th mat-header-cell *matHeaderCellDef>Reason</th>
+          <td mat-cell *matCellDef="let entry">
+            <span *ngIf="entry.reason" [matTooltip]="reasonTooltip(entry.reason)">
+              <mat-icon class="qm-reason-icon qm-reason-instances" *ngIf="entry.reason === 'max_instances'">people</mat-icon>
+              <mat-icon class="qm-reason-icon qm-reason-quota" *ngIf="entry.reason === 'vcpu_quota'">memory</mat-icon>
+              <mat-icon class="qm-reason-icon qm-reason-quota" *ngIf="entry.reason === 'ram_quota'">storage</mat-icon>
+              <mat-icon class="qm-reason-icon qm-reason-quota" *ngIf="entry.reason === 'instances_quota'">dns</mat-icon>
+            </span>
+            <span *ngIf="!entry.reason" class="qm-na">—</span>
+          </td>
+        </ng-container>
+
+        <!-- Actions -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let entry">
+            <button mat-icon-button (click)="onMoveUp(entry)" matTooltip="Move up" [disabled]="entry.position === 1">
+              <mat-icon>arrow_upward</mat-icon>
+            </button>
+            <button mat-icon-button (click)="onMoveDown(entry)" matTooltip="Move down">
+              <mat-icon>arrow_downward</mat-icon>
+            </button>
+            <ng-container *ngIf="!entry.status || entry.status === 'pending'">
+              <button mat-icon-button color="primary" (click)="onApprove(entry)" matTooltip="Approve — allocate immediately">
+                <mat-icon>check_circle</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="onReject(entry)" matTooltip="Reject request">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </ng-container>
+            <mat-icon *ngIf="entry.status === 'approved'" class="qm-status-approved" matTooltip="Approved">check_circle</mat-icon>
+            <mat-icon *ngIf="entry.status === 'rejected'" class="qm-status-rejected" matTooltip="Rejected">cancel</mat-icon>
+            <button mat-icon-button color="warn" (click)="onDelete(entry)" matTooltip="Remove entry">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
+  </ng-container>
+</div>

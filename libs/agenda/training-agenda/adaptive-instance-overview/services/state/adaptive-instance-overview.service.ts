@@ -152,6 +152,14 @@ export class AdaptiveInstanceOverviewService extends CrczpOffsetElementsPaginate
         );
     }
 
+    dynamicFlag(definitionId: number): Observable<any> {
+        return from(
+            this.router.navigate(['api/dynamic-flag/adaptive'], {
+                queryParams: { definitionId },
+            }),
+        );
+    }
+
     poolExists(poolId: number): Observable<boolean> {
         return this.poolApi.getPool(poolId).pipe(
             map(() => true),

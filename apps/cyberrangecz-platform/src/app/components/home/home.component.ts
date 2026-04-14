@@ -88,13 +88,6 @@ export class HomeComponent implements OnInit {
                 children: [],
                 icon: 'manage_accounts',
             },
-            {
-                agendas: this.createApiButtons(),
-                label: 'Dynamic Flag',
-                displayed: RoleResolver.isUserAndGroupAdmin(this.roles),
-                children: [],
-                icon: 'api',
-            },
         ];
     }
 
@@ -191,21 +184,8 @@ export class HomeComponent implements OnInit {
         }
 
 
-    private createApiButtons() {
-        const disabled = !RoleResolver.isUserAndGroupAdmin(this.roles);
-        return [
-            new AgendaPortalLink(
-                'Dynamic Flag',
-                disabled,
-                'api/dynamic-flag/linear',
-                'Manage dynamic flag configuration for training definitions — enable/disable and set the flag change interval.',
-                'flag',
-                HomeComponent.createExpandedControlButtons([
-                    'api/dynamic-flag/adaptive',
-                    'api/dynamic-flag/linear',
-                ]),
-            ),
-        ];
+    private createPlatformToolsButtons() {
+        return [];
     }
 
     private subscribeUserChange() {

@@ -27,6 +27,7 @@ import { PaginationStorageService, PollingService, providePaginationStorageServi
 import { PaginationMapper } from '@crczp/api-common';
 import { PoolSort } from '@crczp/sandbox-api';
 import { TableStateCellComponent } from '@crczp/components';
+import { ResourceLimitManagerComponent } from '@crczp/sandbox-agenda/resource-limit';
 
 /**
  * Smart component of sandbox pool overview page
@@ -45,6 +46,7 @@ import { TableStateCellComponent } from '@crczp/components';
         SentinelRowDirective,
         TableStateCellComponent,
         TableStateCellComponent,
+        ResourceLimitManagerComponent,
     ],
     providers: [
         PollingService,

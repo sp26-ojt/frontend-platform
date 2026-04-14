@@ -17,6 +17,17 @@ const routes: ValidRouterConfig<'adaptive-definition'> = [
         component: AdaptiveTrainingDefinitionOverviewComponent,
     },
     {
+        path: 'dynamic-flag',
+        loadComponent: () =>
+            import('../api/dynamic-flag/adaptive-dynamic-flag-manage.component').then(
+                (m) => m.AdaptiveDynamicFlagManageComponent,
+            ),
+        data: {
+            breadcrumb: 'Dynamic Flag',
+            title: 'Dynamic Flag Management (Adaptive)',
+        },
+    },
+    {
         path: 'create',
         loadComponent: () =>
             import('@crczp/training-agenda/adaptive-definition-edit').then(

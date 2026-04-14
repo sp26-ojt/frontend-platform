@@ -121,11 +121,26 @@ export class SandboxInstanceService extends OffsetPaginatedElementsPollingServic
     ): Observable<OffsetPaginatedResource<SandboxAllocationUnit>> {
         return this.poolApi.allocateSandboxes(poolId).pipe(
             tap(
-                () =>
-                    this.notificationService.emit(
-                        'success',
-                        `Allocation of pool ${poolId} started`,
-                    ),
+                (result) => {
+                    if (result.queued) {
+                        const reasonMap: Record<string, string> = {
+                            max_instances: 'pool instance limit reached',
+                            vcpu_quota: 'vCPU quota exceeded',
+                            ram_quota: 'RAM quota exceeded',
+                            instances_quota: 'OpenStack instance quota exceeded',
+                        };
+                        const reason = result.entry.reason ? (reasonMap[result.entry.reason] ?? result.entry.reason) : 'insufficient resources';
+                        this.notificationService.emit(
+                            'info',
+                            `Request queued at position #${result.entry.position} — ${reason}. Will be allocated automatically when resources are available.`,
+                        ).subscribe();
+                    } else {
+                        this.notificationService.emit(
+                            'success',
+                            `Allocation of pool ${poolId} started`,
+                        ).subscribe();
+                    }
+                },
                 (err) =>
                     this.errorHandler.emitAPIError(
                         err,
@@ -163,11 +178,19 @@ export class SandboxInstanceService extends OffsetPaginatedElementsPollingServic
                           .allocateSandboxes(poolId, response.result)
                           .pipe(
                               tap(
-                                  () =>
-                                      this.notificationService.emit(
-                                          'success',
-                                          `Allocation of specified sandboxes of pool ${poolId} started`,
-                                      ),
+                                  (result) => {
+                                      if (result.queued) {
+                                          this.notificationService.emit(
+                                              'info',
+                                              `Request queued at position #${result.entry.position}. Will be allocated automatically when resources are available.`,
+                                          ).subscribe();
+                                      } else {
+                                          this.notificationService.emit(
+                                              'success',
+                                              `Allocation of specified sandboxes of pool ${poolId} started`,
+                                          ).subscribe();
+                                      }
+                                  },
                                   (err) =>
                                       this.errorHandler.emitAPIError(
                                           err,

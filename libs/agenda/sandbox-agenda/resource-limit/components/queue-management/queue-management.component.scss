@@ -1,0 +1,33 @@
+.qm-container {
+  margin-top: 24px;
+}
+
+.qm-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+.qm-loading {
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+}
+
+.qm-empty {
+  padding: 16px;
+  color: rgba(0, 0, 0, 0.54);
+  font-style: italic;
+}
+
+.qm-table-wrapper {
+  overflow-x: auto;
+}
+
+.qm-table {
+  width: 100%;
+}
+
+.qm-na {
+  color: rgba(0, 0, 0, 0.38);
+}

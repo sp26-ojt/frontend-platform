@@ -1,4 +1,4 @@
-import { HttpClient, HttpContext, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { ResponseHeaderContentDispositionReader } from '@sentinel/common';
 import { OffsetPaginationEvent } from '@sentinel/common/pagination';
@@ -41,6 +41,20 @@ import {
 } from '@crczp/api-common';
 import { PortalConfig } from '@crczp/utils';
 import { AllocationRequestSort, PoolSort, SandboxDefinitionSort } from '../sorts';
+
+export interface AllocationQueueEntry {
+    id: string;
+    poolId: number;
+    userId: string;
+    requestedAt: Date;
+    position: number;
+    estimatedWaitSeconds?: number;
+    reason?: 'max_instances' | 'vcpu_quota' | 'ram_quota';
+}
+
+export type AllocateSandboxesResult =
+    | { queued: false; units: any }
+    | { queued: true; entry: AllocationQueueEntry };
 
 /**
  * Service abstracting http communication with pools endpoints.
@@ -128,21 +142,39 @@ export class PoolApi {
     }
 
     /**
-     * Sends http request to allocate sandbox instances in a pool
+     * Sends http request to allocate sandbox instances in a pool.
+     * Returns { queued: false } on 201 (allocated) or { queued: true, entry } on 202 (queued due to resource limit).
      * @param poolId id of the pool in which sandbox instances should be allocated
      * @param count number of sandbox instance that should be allocated
      */
-    allocateSandboxes(poolId: number, count = 0): Observable<any> {
+    allocateSandboxes(poolId: number, count = 0): Observable<AllocateSandboxesResult> {
         let params = new HttpParams();
         if (count > 0) {
             params = new HttpParams().set('count', count.toString());
         }
-        return this.http.post<DjangoResourceDTO<RequestDTO>>(
+        return this.http.post(
             `${this.apiUrl}/${poolId}/${this.sandboxAllocationUnitsUriExtension}`,
             null,
-            {
-                params,
-            },
+            { params, observe: 'response' },
+        ).pipe(
+            map((response: HttpResponse<any>) => {
+                if (response.status === 202) {
+                    const dto = response.body;
+                    return {
+                        queued: true as const,
+                        entry: {
+                            id: dto.id,
+                            poolId: dto.pool_id,
+                            userId: dto.user_id,
+                            requestedAt: new Date(dto.requested_at),
+                            position: dto.position,
+                            estimatedWaitSeconds: dto.estimated_wait_seconds,
+                            reason: dto.reason,
+                        } as AllocationQueueEntry,
+                    };
+                }
+                return { queued: false as const, units: response.body };
+            }),
         );
     }
 

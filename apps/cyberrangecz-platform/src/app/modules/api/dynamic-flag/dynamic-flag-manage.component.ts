@@ -81,6 +81,11 @@ export class DynamicFlagManageComponent implements OnInit {
         return (this.route.snapshot.data['trainingType'] as 'linear' | 'adaptive') ?? 'linear';
     }
 
+    get filterDefinitionId(): number | null {
+        const id = this.route.snapshot.queryParamMap.get('definitionId');
+        return id ? Number(id) : null;
+    }
+
     ngOnInit(): void {
         this.loadAll();
     }
@@ -124,14 +129,16 @@ export class DynamicFlagManageComponent implements OnInit {
             takeUntilDestroyed(this.destroyRef),
         ).subscribe({
             next: (rows) => {
-                rows.forEach((row) => {
+                const filterId = this.filterDefinitionId;
+                const filtered = filterId ? rows.filter(r => r.definition.id === filterId) : rows;
+                filtered.forEach((row) => {
                     const form = this.buildForm(row.config);
                     if (row.hasInstance) {
                         form.disable();
                     }
                     this.forms[row.definition.id] = form;
                 });
-                this.rows.set(rows);
+                this.rows.set(filtered);
             },
             error: () => this.pageError.set('Failed to load training definitions.'),
         });

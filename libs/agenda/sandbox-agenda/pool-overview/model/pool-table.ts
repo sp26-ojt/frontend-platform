@@ -16,6 +16,7 @@ import { Routing } from '@crczp/routing-commons';
 import { PoolService } from '../services/abstract-pool/abstract-sandbox/pool.service';
 import { PoolSort } from '@crczp/sandbox-api';
 import { OffsetPaginatedResource } from '@crczp/api-common';
+import { ResourceLimitService } from '@crczp/sandbox-agenda/resource-limit';
 
 /**
  * Helper class transforming paginated resource to class for common table component
@@ -32,37 +33,19 @@ export class PoolTable extends ExpandableSentinelTable<
         resources: Observable<Resources>,
         poolService: PoolService,
         sandboxInstanceService: SandboxInstanceService,
+        resourceLimitService: ResourceLimitService,
     ) {
         const rows = data.elements.map((element) =>
-            PoolTable.createRow(
-                element,
-                resources,
-                poolService,
-                sandboxInstanceService,
-            ),
+            PoolTable.createRow(element, resources, poolService, sandboxInstanceService, resourceLimitService),
         );
         const columns = [
             new Column<PoolSort>('title', 'Title', true, 'id'),
-            new Column<PoolSort>(
-                'createdByName',
-                'Created by',
-                true,
-                'created_by',
-            ),
-            new Column<PoolSort>(
-                'sandboxDefinitionNameAndRevision',
-                'Sandbox definition (revision)',
-                true,
-                'definition',
-            ),
-            new Column<PoolSort>('comment', 'Notes and comments', false),
+            new Column<PoolSort>('createdByName', 'Created by', true, 'created_by'),
+            new Column<PoolSort>('sandboxDefinitionNameAndRevision', 'Sandbox definition (revision)', true, 'definition'),
+            new Column<PoolSort>('comment', 'Notes', false),
             new Column<PoolSort>('lockState', 'State', true, 'lock'),
             new Column<PoolSort>('usedAndMaxSize', 'Size', true, 'max_size'),
-            new Column<PoolSort>(
-                'resourcesUtilization',
-                'Instances / VCPUs / RAM / ports / network utilization',
-                false,
-            ),
+            new Column<PoolSort>('resourcesUtilization', 'Instances / VCPUs / RAM / ports / network utilization', false),
         ];
         const expand = new RowExpand(PoolExpandDetailComponent, null);
         super(rows, columns, expand);
@@ -74,6 +57,7 @@ export class PoolTable extends ExpandableSentinelTable<
         resources: Observable<Resources>,
         poolService: PoolService,
         sandboxInstanceService: SandboxInstanceService,
+        resourceLimitService: ResourceLimitService,
     ): Row<PoolRowAdapter> {
         const rowAdapter = pool as PoolRowAdapter;
         rowAdapter.title = `Pool ${rowAdapter.id}`;
@@ -93,14 +77,15 @@ export class PoolTable extends ExpandableSentinelTable<
             `${(pool.hardwareUsage.network * 100).toFixed(1)}%`;
         resources.subscribe((data) => (rowAdapter.resources = data));
 
+        resourceLimitService.getResourceLimit(pool.id).subscribe((limit) => {
+            rowAdapter.limitEnabled = limit.limitEnabled;
+        });
+
         const row = new Row(
             rowAdapter,
             this.createActions(pool, poolService, sandboxInstanceService),
         );
-        row.addLink(
-            'title',
-            Routing.RouteBuilder.pool.poolId(rowAdapter.id).build(),
-        );
+        row.addLink('title', Routing.RouteBuilder.pool.poolId(rowAdapter.id).build());
         return row;
     }
 
@@ -109,87 +94,51 @@ export class PoolTable extends ExpandableSentinelTable<
         abstractPoolService: PoolService,
         sandboxInstanceService: SandboxInstanceService,
     ): RowAction[] {
+        const rowAdapter = pool as PoolRowAdapter;
+        const limitEnabled = rowAdapter.limitEnabled ?? false;
         return [
-            new EditAction(
-                'Edit Pool',
-                of(false),
-                defer(() => abstractPoolService.updatePool(pool)),
-            ),
+            new EditAction('Edit Pool', of(false), defer(() => abstractPoolService.updatePool(pool))),
             new RowAction(
-                'allocate_all',
-                'Allocate All',
-                'subscriptions',
-                'primary',
+                'allocate_all', 'Allocate All', 'subscriptions', 'primary',
                 this.createAllocationTooltip(pool.maxSize, pool.usedSize),
                 of(pool.isFull()),
-                defer(() =>
-                    sandboxInstanceService.allocateSpecified(
-                        pool.id,
-                        pool.maxSize - pool.usedSize,
-                    ),
-                ),
+                defer(() => sandboxInstanceService.allocateSpecified(pool.id, pool.maxSize - pool.usedSize)),
             ),
             new RowAction(
-                'allocate_one',
-                'Allocate One',
-                'exposure_plus_1',
-                'primary',
-                'Allocate one sandbox',
-                of(pool.isFull()),
+                'allocate_one', 'Allocate One', 'exposure_plus_1', 'primary',
+                'Allocate one sandbox', of(pool.isFull()),
                 defer(() => abstractPoolService.allocate(pool, 1)),
             ),
-            new DeleteAction(
-                'Delete Pool',
-                of(pool.lockState == 'locked'),
-                defer(() => abstractPoolService.delete(pool)),
-            ),
+            new DeleteAction('Delete Pool', of(pool.lockState == 'locked'), defer(() => abstractPoolService.delete(pool))),
             this.createLockAction(pool, abstractPoolService),
             new RowAction(
-                'download_man_ssh_configs',
-                'Get management SSH Configs',
-                'vpn_key',
-                'primary',
-                'Download management SSH config',
+                limitEnabled ? 'disable_resource_limit' : 'enable_resource_limit',
+                limitEnabled ? 'Disable Resource Limit' : 'Enable Resource Limit',
+                'data_usage',
+                limitEnabled ? 'primary' : 'warn',
+                limitEnabled ? 'Resource limit active — click to disable' : 'Resource limit inactive — click to enable',
                 of(false),
+                defer(() => abstractPoolService.toggleResourceLimit(pool)),
+            ),
+            new RowAction(
+                'download_man_ssh_configs', 'Get management SSH Configs', 'vpn_key', 'primary',
+                'Download management SSH config', of(false),
                 defer(() => abstractPoolService.getSshAccess(pool.id)),
             ),
         ];
     }
 
-    private static createAllocationTooltip(
-        maxSandboxSize: number,
-        usedSandboxSize: number,
-    ): string {
+    private static createAllocationTooltip(maxSandboxSize: number, usedSandboxSize: number): string {
         if (maxSandboxSize - usedSandboxSize == 1) {
-            if (maxSandboxSize == 1) return 'Allocate sandbox immediately';
-            else return 'Allocate the last sandbox';
-        } else return 'Allocate a specific number of sandboxes';
+            return maxSandboxSize == 1 ? 'Allocate sandbox immediately' : 'Allocate the last sandbox';
+        }
+        return 'Allocate a specific number of sandboxes';
     }
 
-    private static createLockAction(
-        pool: Pool,
-        service: PoolService,
-    ): RowAction {
+    private static createLockAction(pool: Pool, service: PoolService): RowAction {
         if (pool.isLocked()) {
-            return new RowAction(
-                'unlock',
-                'Unlock pool',
-                'lock_open',
-                'primary',
-                'Unlock pool',
-                of(false),
-                defer(() => service.unlock(pool)),
-            );
-        } else {
-            return new RowAction(
-                'lock',
-                'Lock pool',
-                'lock',
-                'primary',
-                'Lock pool',
-                of(false),
-                defer(() => service.lock(pool)),
-            );
+            return new RowAction('unlock', 'Unlock pool', 'lock_open', 'primary', 'Unlock pool', of(false), defer(() => service.unlock(pool)));
         }
+        return new RowAction('lock', 'Lock pool', 'lock', 'primary', 'Lock pool', of(false), defer(() => service.lock(pool)));
     }
 }

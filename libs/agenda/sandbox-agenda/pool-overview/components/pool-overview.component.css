@@ -1,0 +1,5 @@
+/* Thu nhỏ cột Notes */
+::ng-deep .mat-column-comment {
+    max-width: 140px;
+    min-width: 80px;
+}

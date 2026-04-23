@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { ResourceLimit, ResourceLimitDTO } from '../model/resource-limit.model';
 import { Flavor } from '../model/flavor.model';
@@ -44,6 +44,10 @@ export class ResourceLimitService {
     localStorage.setItem(RESOURCE_LIMIT_STORAGE_KEY, JSON.stringify(all));
   }
 
+  getLimitEnabledSync(poolId: number): boolean {
+    return this.loadLocalLimits()[poolId]?.limitEnabled ?? false;
+  }
+
   getResourceLimit(poolId: number): Observable<ResourceLimit> {
     // Check localStorage first
     const local = this.loadLocalLimits()[poolId];
@@ -84,6 +88,13 @@ export class ResourceLimitService {
       );
   }
 
+  toggleResourceLimit(poolId: number): Observable<ResourceLimit> {
+    return this.getResourceLimit(poolId).pipe(
+      map((current) => ({ ...current, limitEnabled: !current.limitEnabled })),
+      switchMap((toggled) => this.saveResourceLimit(toggled)),
+    );
+  }
+
   getPoolFlavor(poolId: number): Observable<Flavor | null> {
     return this.http
       .get<{ id: string; name: string; vcpu: number; ram_gb: number }>(
@@ -95,7 +106,7 @@ export class ResourceLimitService {
           id: dto.id,
           name: dto.name,
           vcpu: dto.vcpu,
-          ramMb: dto.ram_gb, // store as-is (GB), field name kept for compat
+          ramMb: dto.ram_gb,
         })),
         catchError(() => of(null)),
       );

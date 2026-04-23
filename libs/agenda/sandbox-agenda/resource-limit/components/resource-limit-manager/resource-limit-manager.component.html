@@ -100,10 +100,11 @@
       <ng-container matColumnDef="expand">
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let row">
-          <button mat-icon-button (click)="toggleExpand(row); $event.stopPropagation()"
-                  [matTooltip]="expandedPoolId === row.poolId ? 'Collapse queue' : 'View queue'">
-            <mat-icon>{{ expandedPoolId === row.poolId ? 'expand_less' : 'expand_more' }}</mat-icon>
-          </button>
+          <mat-icon class="rlm-expand-icon"
+                    (click)="toggleExpand(row); $event.stopPropagation()"
+                    [matTooltip]="expandedPoolId === row.poolId ? 'Collapse queue' : 'View queue'">
+            {{ expandedPoolId === row.poolId ? 'expand_less' : 'expand_more' }}
+          </mat-icon>
         </td>
       </ng-container>
 

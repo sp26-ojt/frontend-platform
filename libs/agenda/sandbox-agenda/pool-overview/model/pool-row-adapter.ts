@@ -11,4 +11,5 @@ export class PoolRowAdapter extends Pool {
     portUtilization: number;
     sandboxDefinitionNameAndRevision: string;
     resources?: Resources;
+    limitEnabled?: boolean;
 }

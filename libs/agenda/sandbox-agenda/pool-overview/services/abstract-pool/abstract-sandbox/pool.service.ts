@@ -6,6 +6,7 @@ import { Pool } from '@crczp/sandbox-model';
 import { PoolOverviewService } from '../../state/pool-overview.service';
 import { PoolSort } from '@crczp/sandbox-api';
 import { OffsetPaginatedResource } from '@crczp/api-common';
+import { ResourceLimitService } from '@crczp/sandbox-agenda/resource-limit';
 
 @Injectable()
 export class PoolService {
@@ -14,6 +15,7 @@ export class PoolService {
     poolsHasError$: Observable<boolean> =
         this.poolsHasErrorSubject$.asObservable();
     private poolOverviewService = inject(PoolOverviewService);
+    private resourceLimitService = inject(ResourceLimitService);
     pools$: Observable<OffsetPaginatedResource<Pool>> =
         this.poolOverviewService.resource$;
     private lastPagination: OffsetPaginationEvent<PoolSort>;
@@ -89,6 +91,12 @@ export class PoolService {
     updateComment(pool: Pool): Observable<any> {
         return this.poolOverviewService
             .updateComment(pool)
+            .pipe(switchMap(() => this.getAll(this.lastPagination)));
+    }
+
+    toggleResourceLimit(pool: Pool): Observable<any> {
+        return this.resourceLimitService
+            .toggleResourceLimit(pool.id)
             .pipe(switchMap(() => this.getAll(this.lastPagination)));
     }
 }

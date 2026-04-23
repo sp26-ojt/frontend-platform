@@ -11,6 +11,7 @@
     <ng-container *sentinelRow="'lockState'; template: lockState" />
     <ng-container *sentinelRow="'comment'; template: comment" />
 </sentinel-table>
+
 <ng-template #lockState let-row>
     <crczp-table-state-cell [iconColor]="" [icon]="getPoolStateIcon(row)" [text]="row.element.lockState" />
 </ng-template>
@@ -25,4 +26,4 @@
 
 <br>
 
-<crczp-resource-limit-manager />
+<crczp-hardware-quota-summary [quota]="currentQuota" (configSaved)="loadQuota()" />
